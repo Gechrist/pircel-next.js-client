@@ -31,6 +31,8 @@ async function searchHousesFunction(): Promise<House[] | ErrorMessage> {
       }
     );
     const data: House[] = await response.json();
+
+    //check if the search yielded results
     if (data.length !== 0) {
       return data;
     } else {
@@ -50,20 +52,15 @@ const HouseComponent = dynamic(
 export default async function Home() {
   const houseData = await searchHousesFunction();
 
-  // display error message if something is wrong
-  if (Object.keys(houseData).includes('message')) {
-    return (
-      <main className={styles.main}>
-        <div className={styles.error}>
-          <span>{(houseData as ErrorMessage).message}</span>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className={styles.main}>
-      <HouseComponent house={houseData as House[]} />
+      {Object.keys(houseData).includes('message') ? (
+        <span className={styles.error}>
+          {(houseData as ErrorMessage).message}
+        </span>
+      ) : (
+        <HouseComponent house={houseData as House[]} />
+      )}
     </main>
   );
 }

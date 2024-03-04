@@ -24,6 +24,7 @@ export default function SearchTerm() {
       requestString = 'https://wizard-world-api.herokuapp.com/houses';
     }
     try {
+      setErrorMessage({ message: '' });
       const response: Response = await fetch(requestString, {
         method: 'GET',
         headers: {
@@ -32,28 +33,17 @@ export default function SearchTerm() {
       });
       const data: House[] = await response.json();
       setIsLoading(false);
+
+      //check if search yielded results
       if (data.length !== 0) {
         setHouseData([...data]);
       } else {
         setErrorMessage({ message: 'House not found' });
       }
-      console.log(isLoading);
     } catch (e: any) {
       setIsLoading(false);
       setErrorMessage({ message: 'Something went wrong' });
     }
-  }
-
-  // display error message if something is wrong
-  if (errorMessage.message.length > 0) {
-    return (
-      <main className={styles.main}>
-        <div className={styles.error}>
-          {isLoading && <LoadingSpinner />}
-          <span>{errorMessage.message}</span>
-        </div>
-      </main>
-    );
   }
 
   return (
@@ -69,7 +59,12 @@ export default function SearchTerm() {
         </button>
       </form>
       {isLoading && <LoadingSpinner />}
-      {houseData && <HouseComponent house={houseData} />}
+      {errorMessage.message.length > 0 && (
+        <span className={styles.error}>{errorMessage.message}</span>
+      )}
+      {errorMessage.message.length === 0 &&
+        !isLoading &&
+        houseData.length > 0 && <HouseComponent house={houseData} />}
     </main>
   );
 }
