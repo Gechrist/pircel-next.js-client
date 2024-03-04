@@ -1,95 +1,69 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import styles from './page.module.css';
+import LoadingSpinner from '@/components/loadingSpinner/loadingSpinnerComponent';
+import dynamic from 'next/dynamic';
 
-export default function Home() {
+export type House = {
+  id?: string;
+  name?: string;
+  houseColours?: string;
+  founder?: string;
+  animal?: string;
+  element?: string;
+  ghost?: string;
+  commonRoom?: string;
+  heads?: [{ id: string; firstName: string; lastName: string }];
+  traits?: [{ id: string; name: string }];
+};
+
+export type ErrorMessage = {
+  message: string;
+};
+
+async function searchHousesFunction(): Promise<House[] | ErrorMessage> {
+  try {
+    const response: Response = await fetch(
+      'https://wizard-world-api.herokuapp.com/houses',
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const data: House[] = await response.json();
+    if (data.length !== 0) {
+      return data;
+    } else {
+      return { message: 'House not found' };
+    }
+  } catch (e: any) {
+    return { message: 'Something went wrong' };
+  }
+}
+const HouseComponent = dynamic(
+  () => import('@/components/houseComponent/houseComponent'),
+  {
+    loading: () => <LoadingSpinner />,
+  }
+);
+
+export default async function Home() {
+  const houseData = await searchHousesFunction();
+
+  // display error message if something is wrong
+  if (Object.keys(houseData).includes('message')) {
+    return (
+      <main className={styles.main}>
+        <div className={styles.error}>
+          <span>{(houseData as ErrorMessage).message}</span>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <HouseComponent house={houseData as House[]} />
     </main>
   );
 }
