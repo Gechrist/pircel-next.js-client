@@ -44,9 +44,7 @@ async function searchHousesFunction(): Promise<House[] | ErrorMessage> {
 }
 const HouseComponent = dynamic(
   () => import('@/components/houseComponent/houseComponent'),
-  {
-    loading: () => <LoadingSpinner />,
-  }
+  { ssr: false, loading: () => <LoadingSpinner /> }
 );
 
 export default async function Home() {
