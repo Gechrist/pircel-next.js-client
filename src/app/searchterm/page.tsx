@@ -17,11 +17,11 @@ export default function SearchTerm() {
   async function searchHousesFunction(formData: FormData) {
     let requestString: string;
     if (formData?.get('houseName')) {
-      requestString = `http://localhost:4000/houses?name=${formData?.get(
+      requestString = `https://pircel-node-js-server.onrender.com/specifichouse?name=${formData?.get(
         'houseName'
       )}`;
     } else {
-      requestString = 'https://wizard-world-api.herokuapp.com/houses';
+      requestString = 'https://pircel-node-js-server.onrender.com/houses';
     }
     try {
       setErrorMessage({ message: '' });
